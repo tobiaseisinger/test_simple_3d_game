@@ -6,8 +6,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class Texture {
-    public static Texture wood = new Texture("resources/wood.png", 16);
-    public static Texture brick = new Texture("resources/brick.png", 16);
+    public static Texture wood = new Texture("src/main/resources/wood.png", 16);
+    public static Texture brick = new Texture("src/main/resources/brick.png", 16);
 
     public int[] pixels;
     private String loc;
