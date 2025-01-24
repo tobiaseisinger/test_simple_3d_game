@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.util.ArrayList;
 
 public class Game extends JFrame implements Runnable {
     private static final Long serialVersionUID = 1L;
@@ -14,6 +15,7 @@ public class Game extends JFrame implements Runnable {
     private boolean gameRunning = true;
     private BufferedImage bufferedImage;
     public int[] pixel;
+    public ArrayList<Texture> textures;
     public static int[][] map = {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -37,6 +39,9 @@ public class Game extends JFrame implements Runnable {
         gameThread = new Thread(this);
         bufferedImage = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
         pixel = ((DataBufferInt) bufferedImage.getRaster().getDataBuffer()).getData();
+        textures = new ArrayList<Texture>();
+        textures.add(Texture.brick);
+        textures.add(Texture.wood);
         setSize(640,480);
         setResizable(false);
         setLocationRelativeTo(null);
