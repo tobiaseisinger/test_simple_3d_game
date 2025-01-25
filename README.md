@@ -315,3 +315,240 @@ textures = new ArrayList<Texture>();
 textures.add(Texture.brick);
 textures.add(Texture.wood);
 ```
+
+## Kameraklasse
+
+Damit wir Sachen wie `FOV (Field of View)` oder `Speed` einstellen können oder einfach durch die Map spazieren
+können brauchen wir eine Kamera. Dafür erstellen wir eine neue [Kamera.java](src/main/java/org/tobii/game/Camera.java)
+Klasse. Hier drinnen erstellen wir folgende Variablen:
+
+```java
+public double xPos, yPos, xDir, yDir, xPlane, yPlane;
+public boolean left, right, forward, backward;
+public final double MOVE_SPEED = .1;
+public final double ROTATE_SPEED = .1;
+```
+
+Zuerst definieren wir Positions und Richtungsvektoren als `double` Wert. Für die Position des Spielers auf
+unserer Map definieren wir `xPos` für die X-Koordinate und `yPos` für die Y-Koordinate. Die Richtung in der
+der Spieler schaut wird über unsere Richtungsverktoren `xDir` und `yDir` angegeben. Um die FOV des Spielers
+anzugeben haben wir die Kameraflächennormalen `xPlane` und `yPlane`. Für die Geschwindigkeit des Spielers
+definieren wir die finale Variable `MOVE_SPEED`und für die Drehgeschwindigkeit `ROTATE_SPEED`.
+
+Wir brauchen auch noch eine Möglichkeit zu wissen, ob der Spieler sich forwärts oder rückwärts bewegen
+will bzw. ob sich der Spieler nach Rechts oder Links bewegen will. Dafür definieren wir die Variablen `forward`,
+`backward` für die Bewegung und für die Drehung `left` und `right`. Diese Variablen werden bei Bedarf auf `true`
+oder `false` gesetzt, je nachdem ob der Spieler die Aktion ausführen will oder nicht.
+
+Alle Variablen werden in dem Konstruktor der Klasse initialisiert:
+
+```java
+public Camera(double xPos, double yPos, double xDir, double yDir, double xPlane, double yPlane) {
+    this.xPos = xPos;
+    this.yPos = yPos;
+    this.xDir = xDir;
+    this.yDir = yDir;
+    this.xPlane = xPlane;
+    this.yPlane = yPlane;
+}
+```
+
+### Eingabeerkennung
+
+Natürlich wollen wir unsere Tastatur auch verwenden können, um das Spiel zu steuern. Damit wir dies
+erzielen können implementieren wir die Klasse `KeyListener`. Damit sollte unsere IDE (in meinem Fall
+IntelliJ IDEA) die benötigten Funktionen importieren.
+
+```java
+@Override
+public void keyTyped(KeyEvent e) {
+    
+}
+
+@Override
+public void keyPressed(KeyEvent e) {
+    
+}
+
+@Override 
+public void keyReleased(KeyEvent e) {
+    
+}
+```
+
+Die Funktion `keyTyped()` werden wir hier nicht gebrauchen. Beim Aufrufen der Methoden wird mit
+`e.getKeyCode()` abgefragt, welche Taste gedrückt wurde. Wir benutzen das um in ein IF-Statement nachzufragen,
+ob eine bestimmte Taste gedrückt wurde und reagieren dementsprechend darauf. In unserem Fall setzen wir unsere 
+vorher angelegten `boolean` Variablen auf `true` oder `false`. Dies sieht folgendermaßen aus:
+
+```java
+@Override
+public void keyPressed(KeyEvent e) {
+    if (e.getKeyCode() == KeyEvent.VK_LEFT) left = true;
+    if (e.getKeyCode() == KeyEvent.VK_RIGHT) right = true;
+    if (e.getKeyCode() == KeyEvent.VK_UP) forward = true;
+    if (e.getKeyCode() == KeyEvent.VK_DOWN) backward = true;
+}
+
+@Override 
+public void keyReleased(KeyEvent e) {     
+    if (e.getKeyCode() == KeyEvent.VK_LEFT) left = false;
+    if (e.getKeyCode() == KeyEvent.VK_RIGHT) right = false;
+    if (e.getKeyCode() == KeyEvent.VK_UP) forward = false;
+    if (e.getKeyCode() == KeyEvent.VK_DOWN) backward = false;
+}
+```
+Damit wir jetzt in jeder Iteration des Game Loops abprüfen können, ob eine Taste betätigt wurde,
+schreiben wir eine Methode `update(int[][] map)`, welche in der Game-Logik-Block unserer [Game.java](src/main/java/org/tobii/game/Game.java)
+Klasse aufgerufen wird und unsere Map übergeben bekommt. Hier werden wir in den IF-Statements unsere Aktionen
+definieren.
+
+```java
+public void update(int[][] map) {
+        // Vorwärts
+        if (forward) {
+            
+        }
+
+        // Rückwärts
+        if (backward) {
+            
+        }
+
+        // Rotation Rechts
+        if (right) {
+            
+        }
+
+        // Rotation Links
+        if (left) {
+            
+        }
+    }
+```
+
+### Bewegung (Vorwärts/Rückwärts)
+
+Damit wir nicht einfach so durch Wände durchlaufen können, bauen wir noch eine kleine Collision-Detection ein.
+Dafür Überprüfen wir jedes Mal wenn die Taste gedrückt ist, ob an der Stelle, an der sich der Spieler hinbewegen wird,
+der Raum leer ist oder nicht. Wenn dieser leer ist, dann bewegt sich der Spieler in die Richtung in der gegebenen
+Geschwindigkeit (Richtung * Geschwindigkeit). Dies sieht folgendermaßen für Vorwärts aus:
+
+```java
+if (forward) {
+    if (map[(int)(xPos+xDir * MOVE_SPEED)][(int)yPos] == 0) {
+        xPos += xDir * MOVE_SPEED;
+    }
+    if (map[(int)xPos][(int)(yPos+yDir * MOVE_SPEED)] == 0) {
+        yPos += yDir * MOVE_SPEED;
+    }
+}
+```
+
+Das erste IF-Statement überprüft, ob Horizontal (X-Achse) in der Position, auf der der Spieler landen wird
+sich etwas befindet. Wenn die nicht der Fall ist bewegt er sich fort. Selbes Spiel bei der Vertikalen bewegung.
+Hier müssen wir nur das selbe für die Y-Achse überprüfen.
+
+Das Selbe müssen wir für die Rückwärtsbewegung auch machen nur hier dürfen wir nicht zur der X- oder Y-Position 
+addieren sondern müssen subtrahieren. Dies sieht wie folgt aus:
+
+```java
+// Rückwärts
+if (backward) {
+    if (map[(int)(xPos+xDir * MOVE_SPEED)][(int)yPos] == 0) {
+        xPos += xDir * MOVE_SPEED;
+    }
+    if (map[(int)xPos][(int)(yPos+yDir * MOVE_SPEED)] == 0) {
+        yPos += yDir * MOVE_SPEED;
+    }
+}
+```
+
+### Rotation (Links, Rechts)
+
+Für die Rotation des Spielers brauchen wir erstmal ein bisschen mathematisches Verständis für das Vorgehen.
+Wenn sich der Spieler nach links oder rechts drehen will, dann wird der `Blinkwinkel (Richtungsvektor (xDir,yDir))`
+um einen bestimmten Winkel rotiert (für die Darstellung wird der Buchstabe Theta θ als Winkel verwendet). Die Rotation
+des Punktes um den Winkel θ wird mit der 2D-Rotationsmatrix beschrieben:
+
+![rotationsmatrix](src/main/resources/docu/rotationsmatrix.png)
+
+`x'` und `y'` stellen hier die neuen X- und Y-Werte nach der Rotation da. `cos(θ)` stellt die Projektion auf die X-Achse da
+bzw. wie stark die neue Position des Vektors entland der X-Achse liegt. 
+
+Beispiel:
+
+Man hat einen Vektor(1,0) (dieser liegt auf der X-Achse, weil x=1 und y=0). Wenn man diesen Vektor nun um den Winkel
+θ dreht, dann zeigt dieser schräg in den Raum. Jetzt muss man den X-Anteil vom neuen Vektor berechnen und dafür
+benutzen wir den Kosinus vom Winkel θ.
+
+Das selbe müssen wir für die Y-Achse machen. Hier hingegen nehmen wir `sin(θ)` für die Projektion auf die Y-Achse.
+Damit man sich das Ergebnis ein bisschen besser vorstellen kann, wenden wir die Rotationsmatrix für -90 Grad an.
+
+Beispiel:
+
+Die Rotationsmatrix für -90 Grad:
+
+![rotationsmatrix_90](src/main/resources/docu/rotationsmatrix_90.png)
+
+Anwendung auf den Vektor:
+
+![rotation_praktisch.png](src/main/resources/docu/rotation_praktisch.png)
+
+Nach der Drehung schaut der Spieler in die Richtung: (xDir',yDir') = (0,-1)
+
+<br>
+Das selbe müssen wir mit der Rotation der Kameraebene machen. Hier können wir die selbe
+2D-Rotationsmatrix verwenden. Hier ist jedoch der Unterschied, dass wir uns hier den sichtbaren Bereich definieren
+bzw. die "Breite" des Sichtfelds berechnen. Dieses wissen können wir im Code wie folgt anwenden:
+
+```java
+// Rotation Rechts
+if (right) {
+    double oldxDir = xDir;
+    xDir += xDir * Math.cos(-ROTATE_SPEED) - yDir * Math.sin(-ROTATE_SPEED);
+    yDir += oldxDir * Math.sin(-ROTATE_SPEED) + yDir * Math.cos(-ROTATE_SPEED);
+    double oldxPlane = xPlane;
+    xPlane = xPlane * Math.cos(-ROTATE_SPEED) - yPlane * Math.sin(-ROTATE_SPEED);
+    yPlane = oldxPlane * Math.sin(-ROTATE_SPEED) + yPlane * Math.cos(-ROTATE_SPEED);
+}
+```
+
+Unser Winkel θ wird hier mit unseren `ROTATE_SPEED` ersetzt. Damit wir nicht für `yDir` unser neues `xDir` anwenden,
+deklarieren wir eine neue Variable `oldxDir` und wenden diese bei `yDir` an. Selbes Spiel gilt für die Plane. Damit
+wir uns nach links drehen können müssen wir unser `ROTATE_SPEED` im positiv anwenden (+). Dies sieht folgendermaßen aus:
+
+```java
+// Rotation Links
+if (left) {     
+    double oldxDir = xDir;
+    xDir += xDir * Math.cos(ROTATE_SPEED) - yDir * Math.sin(ROTATE_SPEED);
+    yDir += oldxDir * Math.sin(ROTATE_SPEED) + yDir * Math.cos(ROTATE_SPEED);
+    double oldxPlane = xPlane;
+    xPlane = xPlane * Math.cos(ROTATE_SPEED) - yPlane * Math.sin(ROTATE_SPEED);
+    yPlane = oldxPlane * Math.sin(ROTATE_SPEED) + yPlane * Math.cos(ROTATE_SPEED);
+}
+```
+
+### Aufruf der Methode
+
+Damit wir nun unsere Keyboardinputs anwenden können, müssen wir die `update()` Methode aufrufen. Dafür gehen wir
+in unsere [Game.java](src/main/java/org/tobii/game/Game.java) und initialisieren und diese Aufrufen. 
+
+```java
+public class Game extends JFrame implements Runnable {
+    // ...
+    public Camera camera;
+    // ...
+    
+    public Game() {
+        // ...
+        camera = new Camera(7, 7, 1, 0, 0, -.70);
+        addKeyListener(camera);
+        // ...
+    }
+}
+```
+
+Beim initialisieren des Kameraobjektes übergeben wir Startpositionswerte. Damit auch das Programm auf unsere
+Eingaben hört, müssen wir das Objekt dem `addKeyListener()` übergeben.

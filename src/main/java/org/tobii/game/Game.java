@@ -11,6 +11,7 @@ public class Game extends JFrame implements Runnable {
     private static final Long serialVersionUID = 1L;
     public int mapWidth = 15;
     public int mapHeight = 15;
+    public Camera camera;
     private Thread gameThread;
     private boolean gameRunning = true;
     private BufferedImage bufferedImage;
@@ -39,6 +40,8 @@ public class Game extends JFrame implements Runnable {
         gameThread = new Thread(this);
         bufferedImage = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
         pixel = ((DataBufferInt) bufferedImage.getRaster().getDataBuffer()).getData();
+        camera = new Camera(7, 7, 1, 0, 0, -.70);
+        addKeyListener(camera);
         textures = new ArrayList<Texture>();
         textures.add(Texture.brick);
         textures.add(Texture.wood);
@@ -86,7 +89,8 @@ public class Game extends JFrame implements Runnable {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
-            while (delta >= 1) {
+            while (delta >= 1) {       // Game Logik
+                camera.update(map);
                 delta--;
             }
             render();
