@@ -237,3 +237,81 @@ Wenn wir jetzt das Spiel ausführen wird uns ein Fenster begrüßen. Wenn die Hi
 ist, dann funktioniert alles nach Plan!
 
 ![window-1](src/main/resources/docu/window-1.png)
+
+## Texturen
+
+Bevor wir mit den Rendering anfangen, müssen wir noch Texturen hinzufügen. Hierbei ist es wichtig, dass die Texturen
+quadratisch sind (z.B.: 16x16, 32x32, ...). Dafür erstellen wir eine neue [Texture.java](src/main/java/org/tobii/game/Texture.java) Klasse.
+Jetzt erstellen wir mal unsere benötigten Variablen.
+
+```java
+public class Texture {
+    public int[] pixels;
+    private String loc;
+    public final int SIZE;
+}
+```
+
+Das Integer-Array `pixels` speichert die einzelnen Daten der Pixel, damit wir sie später leichter Manipulieren können
+fürs Rendering. Der Pfad zu der Textur wird in `loc` angegeben. In `SIZE` wird die Größe der Textur festgelegt (16x16 -> 16).
+Nun müssen wir diese Variablen initialisieren. Das machen wir in unserem Konstruktor:
+
+```java
+public Texture(String loc, int size) {
+    this.loc = loc;
+    SIZE = size;
+    pixels = new int[SIZE*SIZE];
+}
+```
+
+Jetzt brauchen wir noch die Rohdaten der Textur. Dafür schreiben wir uns ganz einfach eine Methode `load()`, welche
+diese ausliest.
+```java
+private void load() {
+    try {
+        BufferedImage bufferedImage = ImageIO.read(new File(loc));
+        int width = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight();
+        bufferedImage.getRGB(0,0,width,height,pixels,0,width);
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    }
+}
+```
+
+Hierzu nehmen wir natürlich wieder unser `BufferedImage` wo wir mit `ImageIO.read(new File(loc))` unser Bild 
+einlesen. Nun können wir uns die Höhe und Breite des Bildes holen, sowie auch unser Array für die Pixel mit den Daten
+befüllen. Diese Methode wird in unserem Konstruktor aufgerufen. Hier nun der fertige Konstruktor:
+
+```java
+public Texture(String loc, int size) {
+    this.loc = loc;
+    SIZE = size;
+    pixels = new int[SIZE*SIZE];
+    load();
+}
+```
+
+Jetzt können wir in unserer [Texture.java](src/main/java/org/tobii/game/Texture.java) Klasse neue Texture-Objekte
+erstellen und initialisieren. Ich hab hierfür 2 Texturen zu meinem [Resources](src/main/resources) Folder hinzugefügt
+und am Anfang meiner Klasse diese als Objekte erstellt.
+
+```java
+public static Texture wood = new Texture("src/main/resources/wood.png", 16);
+public static Texture brick = new Texture("src/main/resources/brick.png", 16);
+```
+
+Um diese später im Spiel anzeigen zu lassen müssen wir in unserer [Game.java](src/main/java/org/tobii/game/Game.java)
+Klasse eine neue `ArrayList<Texture> textures` erstellen in denen wir unsere Texturen speichern.
+
+```java
+public ArrayList<Texture> textures;
+```
+
+Diese Liste befüllen wir in unserem Konstruktor der Klasse:
+
+```java
+textures = new ArrayList<Texture>();
+textures.add(Texture.brick);
+textures.add(Texture.wood);
+```
