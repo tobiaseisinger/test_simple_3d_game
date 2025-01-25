@@ -48,7 +48,7 @@ Natürlich brauchen wir noch eine Map damit der Spieler nicht ins Leere starren 
 3D Objekte anzeigen, sondern nur ein "Pseudo" 3D. Hier werden wir eine 2D Map anfertigen, welche dann durch
 Berechnungen für den Spieler 3D erscheint.
 ![demo](src/main/resources/docu/demo.gif)
-Source: https://github.com/vinibiavatti1/RayCastingTutorial
+<br> Source: https://github.com/vinibiavatti1/RayCastingTutorial
 
 Für diese Map erstellen wir ein zwei-dimensionales Array aus Integern (int[][]).
 ```java
